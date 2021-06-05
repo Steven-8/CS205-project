@@ -80,6 +80,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="D:/Desktop/cs205-project/demo.cpp">
+			<Option target="cs205_project"/>
+		</Unit>
 		<Unit filename="D:/Desktop/cs205-project/main.cpp">
 			<Option target="cs205_project"/>
 		</Unit>

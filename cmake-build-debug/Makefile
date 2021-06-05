@@ -141,6 +141,33 @@ cs205_project/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\cs205_project.dir\build.make CMakeFiles/cs205_project.dir/build
 .PHONY : cs205_project/fast
 
+demo.obj: demo.cpp.obj
+
+.PHONY : demo.obj
+
+# target to build an object file
+demo.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\cs205_project.dir\build.make CMakeFiles/cs205_project.dir/demo.cpp.obj
+.PHONY : demo.cpp.obj
+
+demo.i: demo.cpp.i
+
+.PHONY : demo.i
+
+# target to preprocess a source file
+demo.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\cs205_project.dir\build.make CMakeFiles/cs205_project.dir/demo.cpp.i
+.PHONY : demo.cpp.i
+
+demo.s: demo.cpp.s
+
+.PHONY : demo.s
+
+# target to generate assembly for a file
+demo.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\cs205_project.dir\build.make CMakeFiles/cs205_project.dir/demo.cpp.s
+.PHONY : demo.cpp.s
+
 main.obj: main.cpp.obj
 
 .PHONY : main.obj
@@ -177,6 +204,9 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... cs205_project
+	@echo ... demo.obj
+	@echo ... demo.i
+	@echo ... demo.s
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s
