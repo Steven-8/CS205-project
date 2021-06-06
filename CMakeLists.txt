@@ -3,4 +3,4 @@ project(cs205_project)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(cs205_project main.cpp demo.cpp)
+add_executable(cs205_project main.cpp matrix.h)

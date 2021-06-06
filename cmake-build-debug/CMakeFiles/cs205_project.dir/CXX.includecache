@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/23532/Documents/GitHub/CS205-project/main.cpp
+iostream
+-
+vector
+-
+complex
+-
+matrix.h
+C:/Users/23532/Documents/GitHub/CS205-project/matrix.h
+
+C:/Users/23532/Documents/GitHub/CS205-project/matrix.h
+vector
+-
+

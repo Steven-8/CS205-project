@@ -1,4 +1,4 @@
-"D:\CLion 2021.1\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" D:\Desktop\cs205-project
+"C:\Program Files\JetBrains\CLion 2021.1\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" C:\Users\23532\Documents\GitHub\CS205-project
 -- Configuring done
 -- Generating done
--- Build files have been written to: D:/Desktop/cs205-project/cmake-build-debug
+-- Build files have been written to: C:/Users/23532/Documents/GitHub/CS205-project/cmake-build-debug

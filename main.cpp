@@ -1,9 +1,8 @@
 #include <iostream>
 #include <vector>
 #include<complex>
-
+#include "matrix.h"
 using namespace std;
-
 //大小不匹配异常
 class size_mismatch_exception : public exception {
 public:
@@ -20,27 +19,8 @@ public:
     }
 };
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
-}
 
-template<typename T>
-class Matrix {
-private:
-    vector<vector<T>> matrix;
-public:
-    Matrix(vector<vector<T>> mat);
 
-    int get_rows();
-
-    int get_cols();
-
-    vector<vector<T>> getMatrix();
-
-    void transpose();
-
-};
 
 template<typename T>
 Matrix<T>::Matrix(vector<vector<T>> mat) {
@@ -58,7 +38,7 @@ int Matrix<T>::get_cols() {
 }
 
 template<typename T>
-vector<vector<T>> Matrix<T>::getMatrix() {
+vector<vector<T>>& Matrix<T>::getMatrix() {
     return matrix;
 }
 
@@ -79,7 +59,7 @@ void Matrix<T>::transpose() {
 
 //加法
 template<typename T>
-Matrix<T> operator+(Matrix<T> &mat1, Matrix<T> &mat2) {
+Matrix<T> operator+(Matrix<T> mat1, Matrix<T> mat2) {
     vector<vector<T>> vec;
     if (mat1.get_rows() != mat2.get_rows() || mat1.get_cols() != mat2.get_cols()) {
         throw size_mismatch_exception();
@@ -87,7 +67,7 @@ Matrix<T> operator+(Matrix<T> &mat1, Matrix<T> &mat2) {
         for (int i = 0; i < mat1.get_rows(); ++i) {
             vector<T> temp;
             for (int j = 0; j < mat1.get_cols(); ++j) {
-                temp.push_back(mat1.matrix[i][j] + mat2.matrix[i][j]);
+                temp.push_back(mat1.getMatrix()[i][j] + mat2.getMatrix()[i][j]);
             }
             vec.push_back(temp);
         }
@@ -97,7 +77,7 @@ Matrix<T> operator+(Matrix<T> &mat1, Matrix<T> &mat2) {
 
 //减法
 template<typename T>
-Matrix<T> operator-(Matrix<T> &mat1, Matrix<T> &mat2) {
+Matrix<T> operator-(Matrix<T> mat1, Matrix<T> mat2) {
     vector<vector<T>> vec;
     if (mat1.get_rows() != mat2.get_rows() || mat1.get_cols() != mat2.get_cols()) {
         throw size_mismatch_exception();
@@ -105,7 +85,7 @@ Matrix<T> operator-(Matrix<T> &mat1, Matrix<T> &mat2) {
         for (int i = 0; i < mat1.get_rows(); ++i) {
             vector<T> temp;
             for (int j = 0; j < mat1.get_cols(); ++j) {
-                temp.push_back(mat1.matrix[i][j] - mat2.matrix[i][j]);
+                temp.push_back(mat1.getMatrix()[i][j] - mat2.getMatrix()[i][j]);
             }
             vec.push_back(temp);
         }
@@ -115,24 +95,30 @@ Matrix<T> operator-(Matrix<T> &mat1, Matrix<T> &mat2) {
 
 //标量乘法
 template<typename T>
-Matrix<T> &scalar_mul(Matrix<T> &mat, T t) {
+Matrix<T> scalar_mul(Matrix<T> mat, T t) {
+    vector<vector<T>> vec;
     for (int i = 0; i < mat.get_rows(); ++i) {
+        vector<T> temp;
         for (int j = 0; j < mat.get_cols(); ++j) {
-            mat.getMatrix()[i][j] = mat.getMatrix()[i][j] * t;
+            temp.push_back(mat.getMatrix()[i][j] * t);
         }
+        vec.push_back(temp);
     }
-    return mat;
+    return Matrix<T>(vec);
 }
 
 //标量除法
 template<typename T>
-Matrix<T> &scalar_div(Matrix<T> &mat, T t) {
+Matrix<T> scalar_div(Matrix<T> mat, T t) {
+    vector<vector<T>> vec;
     for (int i = 0; i < mat.get_rows(); ++i) {
+        vector<T> temp;
         for (int j = 0; j < mat.get_cols(); ++j) {
-            mat.getMatrix()[i][j] = mat.getMatrix()[i][j] / t;
+            temp.push_back(mat.getMatrix()[i][j] / t);
         }
+        vec.push_back(temp);
     }
-    return mat;
+    return Matrix<T>(vec);
 }
 
 //置换矩阵 ?返回多个矩阵
@@ -143,6 +129,7 @@ Matrix<T> transposition(Matrix<T> &mat) {
 
 
 //共轭矩阵 ?如何判断是否为复数
+/*
 template<typename T>
 Matrix<T> conjugation(Matrix<T> &mat) {
     mat.transpose();
@@ -158,10 +145,11 @@ Matrix<T> conjugation(Matrix<T> &mat) {
     }
 }
 
+*/
 
 //矩阵元素相乘
 template<typename T>
-Matrix<T> e_w_mul(Matrix<T> &mat1, Matrix<T> &mat2) {
+Matrix<T> e_w_mul(Matrix<T> mat1, Matrix<T> mat2) {
     if (mat1.get_rows() != mat2.get_rows() || mat1.get_cols() != mat2.get_cols()) {
         throw size_mismatch_exception();
     }
@@ -179,7 +167,7 @@ Matrix<T> e_w_mul(Matrix<T> &mat1, Matrix<T> &mat2) {
 
 //矩阵相乘
 template<typename T>
-Matrix<T> operator*(Matrix<T> &mat1, Matrix<T> &mat2) {
+Matrix<T> operator*(Matrix<T> mat1, Matrix<T> mat2) {
     if (mat1.get_cols() != mat2.get_rows()) {
         throw size_mismatch_exception();
     }
@@ -201,7 +189,7 @@ Matrix<T> operator*(Matrix<T> &mat1, Matrix<T> &mat2) {
 
 //矩阵向量相乘
 template<typename T>
-Matrix<T> operator*(Matrix<T> &mat, vector<T> &vec) {
+Matrix<T> operator*(Matrix<T> mat, vector<T> vec) {
     if (mat.get_cols() != vec.size()) {
         throw size_mismatch_exception();
     }
@@ -220,7 +208,7 @@ Matrix<T> operator*(Matrix<T> &mat, vector<T> &vec) {
 }
 
 template<typename T>
-Matrix<T> operator*(vector<T> &vec, Matrix<T> &mat) {
+Matrix<T> operator*(vector<T> vec, Matrix<T> mat) {
     if (mat.get_rows() != vec.size()) {
         throw size_mismatch_exception();
     }
@@ -239,7 +227,7 @@ Matrix<T> operator*(vector<T> &vec, Matrix<T> &mat) {
 
 //点乘
 template<typename T>
-T dot(vector<T> &vec1, vector<T> &vec2) {
+T dot(vector<T> vec1, vector<T> vec2) {
     if (vec1.size() != vec2.size()) {
         throw size_mismatch_exception();
     }
@@ -252,7 +240,7 @@ T dot(vector<T> &vec1, vector<T> &vec2) {
 
 //叉乘
 template<typename T>
-vector<T> cross(vector<T> &vec1, vector<T> &vec2) {
+vector<T> cross(vector<T> vec1, vector<T> vec2) {
     if (vec1.size() != 3 || vec2.size() != 3) {
         throw size_mismatch_exception();
     }
@@ -263,3 +251,37 @@ vector<T> cross(vector<T> &vec1, vector<T> &vec2) {
     return vec;
 }
 
+int main(){
+    vector<int > r1;
+    vector<int > r2;
+    vector<int > r3;
+    r1.push_back(1);
+    r1.push_back(2);
+    r1.push_back(3);
+    r2.push_back(4);
+    r2.push_back(5);
+    r2.push_back(6);
+    r3.push_back(7);
+    r3.push_back(8);
+    r3.push_back(9);
+    vector<vector<int>> mat;
+    mat.push_back(r1);
+    mat.push_back(r2);
+    mat.push_back(r3);
+
+    Matrix<int> m1(mat);
+    Matrix<int> m2=m1+m1+m1;
+    m2= scalar_mul(m2,3);
+    for(int i=0; i<m2.get_rows();i++){
+        for (int j = 0; j < m2.get_cols(); ++j) {
+            cout<<m2.getMatrix()[i][j]<<"  ";
+        }
+        cout<<endl;
+
+    }
+
+
+
+
+
+}
