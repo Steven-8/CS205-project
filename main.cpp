@@ -2,6 +2,7 @@
 #include <vector>
 #include<complex>
 #include "matrix.h"
+#include <typeinfo>
 using namespace std;
 //大小不匹配异常
 class size_mismatch_exception : public exception {
@@ -251,6 +252,181 @@ vector<T> cross(vector<T> vec1, vector<T> vec2) {
     return vec;
 }
 
+//part4
+template<typename T>
+T max_val(Matrix<T> mat){
+    T t=mat.getMatrix()[0][0];
+    for(int i=0;i<mat.get_rows();i++){
+        for(int j=0;j<mat.get_cols();j++){
+            if(t<mat.getMatrix()[i][j]){
+                t=mat.getMatrix()[i][j];
+            }
+        }
+
+    }
+    return t;
+};
+
+template<typename T>
+T max_row_val(Matrix<T> mat, int row_index){
+    try{
+        if(mat.get_rows()<row_index){
+            throw row_index;
+        }
+    }catch(int row_index){
+        cout<<"exception: row_index out of bound: "<<row_index<<endl;
+        exit(-1);
+    }
+    T t=mat.getMatrix()[0][0];
+    for (int i = 0; i < mat.get_cols(); ++i) {
+        if(t<mat.getMatrix()[row_index-1][i]){
+            t=mat.getMatrix()[row_index-1][i];
+        }
+    }
+    t=t-mat.getMatrix()[0][0];
+    return t;
+
+};
+
+template<typename T>
+T max_col_val(Matrix<T> mat,int col_index){
+    try{
+        if(mat.get_cols()<col_index){
+            throw col_index;
+        }
+    }catch(int col_index){
+        cout<<"exception: col_index out of bound: "<<col_index<<endl;
+        exit(-1);
+    }
+    T t=mat.getMatrix()[0][0];
+    for (int i = 0; i < mat.get_rows(); ++i) {
+        if(t<mat.getMatrix()[i][col_index-1]){
+            t=mat.getMatrix()[i][col_index-1];
+        }
+    }
+    t=t-mat.getMatrix()[0][0];
+    return t;
+
+};;
+template<typename T>
+T min_val(Matrix<T> mat){
+    T t=mat.getMatrix()[0][0];
+    for(int i=0;i<mat.get_rows();i++){
+        for(int j=0;j<mat.get_cols();j++){
+            if(t>mat.getMatrix()[i][j]){
+                t=mat.getMatrix()[i][j];
+            }
+        }
+
+    }
+    return t;
+};
+template<typename T>
+T min_row_val(Matrix<T> mat,int row_index){
+        try{
+            if(mat.get_rows()<row_index){
+                throw row_index;
+            }
+        }catch(int row_index){
+            cout<<"exception: row_index out of bound: "<<row_index<<endl;
+            exit(-1);
+            exit(-1);
+        }
+
+        T t=mat.getMatrix()[0][0];
+        for (int i = 0; i < mat.get_cols(); ++i) {
+            if(t>mat.getMatrix()[row_index-1][i]){
+                t=mat.getMatrix()[row_index-1][i];
+            }
+        }
+        t=t-mat.getMatrix()[0][0];
+        return t;
+};
+
+template<typename T>
+T min_col_val(Matrix<T> mat,int col_index){
+    try{
+        if(mat.get_cols()<col_index){
+            throw col_index;
+        }
+    }catch(int col_index){
+        cout<<"exception: col_index out of bound: "<<col_index<<endl;
+        exit(-1);
+
+    }
+    T t=mat.getMatrix()[0][0];
+    for (int i = 0; i < mat.get_rows(); ++i) {
+        if(t>mat.getMatrix()[i][col_index-1]){
+            t=mat.getMatrix()[i][col_index-1];
+        }
+    }
+    t=t-mat.getMatrix()[0][0];
+    return t;
+
+};
+template<typename T>
+T sum(Matrix<T> mat){
+    T t=mat.getMatrix()[0][0];
+    for(int i=0;i<mat.get_rows();i++){
+        for(int j=0;j<mat.get_cols();j++){
+            t=t+mat.getMatrix()[i][j];
+        }
+    }
+    t=t-mat.getMatrix()[0][0];
+    return t;
+
+};
+
+template<typename T>
+T sum_row(Matrix<T> mat,int row_index){
+    try{
+        if(mat.get_rows()<row_index){
+            throw row_index;
+        }
+    }catch(int row_index){
+        cout<<"exception: row_index out of bound: "<<row_index<<endl;
+        exit(-1);
+    }
+    T t=mat.getMatrix()[0][0];
+    for (int i = 0; i < mat.get_cols(); ++i) {
+        t=t+mat.getMatrix()[row_index-1][i];
+    }
+    t=t-mat.getMatrix()[0][0];
+    return t;
+
+};
+template<typename T>
+T sum_col(Matrix<T> mat,int col_index){
+    try{
+        if(mat.get_cols()<col_index){
+            throw col_index;
+        }
+    }catch(int col_index){
+        cout<<"exception: col_index out of bound: "<<col_index<<endl;
+        exit(-1);
+    }
+    T t=mat.getMatrix()[0][0];
+    for(int i=0;i<mat.get_rows();i++){
+        t=t+mat.getMatrix()[i][col_index-1];
+    }
+    t=t-mat.getMatrix()[0][0];
+    return t;
+};
+template<typename T>
+T avg(Matrix<T> mat){
+    return sum(mat)/(mat.get_rows()*mat.get_cols());
+};
+
+template<typename T>
+T avg_row(Matrix<T> mat,int row_index){
+    return sum_row(mat,row_index)/mat.get_cols();
+};
+template<typename T>
+T avg_col(Matrix<T> mat,int col_index){
+    return sum_col(mat,col_index)/mat.get_rows();
+};
+
+
 int main(){
     vector<int > r1;
     vector<int > r2;
@@ -279,6 +455,10 @@ int main(){
         cout<<endl;
 
     }
+    cout<<min_row_val(m2,2)<<endl;
+    cout<<sum_col(m2,2)<<endl;
+    cout<<avg_col(m2,2)<<endl;
+    cout<<avg(m2)<<endl;
 
 
 
