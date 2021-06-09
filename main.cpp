@@ -59,7 +59,7 @@ vector<vector<T>> &Matrix<T>::getMatrix() {
     return matrix;
 }
 
-//矩阵转置
+//正常矩阵转置
 template<typename T>
 void Matrix<T>::transpose() {
     vector<vector<T>> vec;
@@ -73,6 +73,33 @@ void Matrix<T>::transpose() {
     matrix = vec;
     return;
 };
+
+//稀疏矩阵构造函数
+template<typename T>
+sparseMatrix<T>::sparseMatrix(vector<vector<T>> mat):Matrix<T>(mat) {
+    for (int i = 0; i < mat.size(); ++i) {
+        for (int j = 0; j < mat.front().size(); ++j) {
+            if (mat[i][j] != 0) {
+                position.push_back({i,j});
+                value.push_back(mat[i][j]);
+            }
+        }
+    }
+}
+
+//稀疏矩阵转置
+template<typename T>
+void sparseMatrix<T>::transpose() {
+    for (int i = 0; i < value.size(); ++i) {
+        int x = position[i][0];
+        int y = position[i][0];
+        position[i][0] = x;
+        position[i][1] = y;
+        T temp = this->matrix[x][y];
+        this->matrix[x][y] = this->matrix[y][x];
+        this->matrix[y][x] = temp;
+    }
+}
 
 //加法
 template<typename T>
@@ -252,6 +279,7 @@ Matrix<T> operator*(Matrix<T> mat, vector<T> vec) {
     return Matrix<T>(new_vec);
 }
 
+//乘法
 template<typename T>
 Matrix<T> operator*(vector<T> vec, Matrix<T> mat) {
     try {
@@ -576,6 +604,10 @@ int main() {
     mat.push_back(r5);
     Matrix<int> m1(mat);
     Matrix<int> m2(m1);
+    sparseMatrix<int> m3(mat);
+    cout<<m3;
+    m3.transpose();
+    cout<<m3;
     //  cout << m1 << endl;
 //    m1.transpose();
 //    cout<<m1<<endl;
@@ -593,6 +625,6 @@ int main() {
 //    m2 = scalar_mul(m2, 3);
     // r1.push_back(1);
     // vector<int> c = cross(r1, r2);
-    cout << m2 << endl;
-    cout << convolution(m1, m2);
+ //   cout << m2 << endl;
+   // cout << convolution(m1, m2);
 }
