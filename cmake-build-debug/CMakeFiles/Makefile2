@@ -53,19 +53,19 @@ cmake_force:
 SHELL = cmd.exe
 
 # The CMake executable.
-CMAKE_COMMAND = "C:\Program Files\JetBrains\CLion 2021.1\bin\cmake\win\bin\cmake.exe"
+CMAKE_COMMAND = "D:\CLion 2021.1\bin\cmake\win\bin\cmake.exe"
 
 # The command to remove a file.
-RM = "C:\Program Files\JetBrains\CLion 2021.1\bin\cmake\win\bin\cmake.exe" -E rm -f
+RM = "D:\CLion 2021.1\bin\cmake\win\bin\cmake.exe" -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\23532\Documents\GitHub\CS205-project
+CMAKE_SOURCE_DIR = D:\Desktop\cs205-project
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\23532\Documents\GitHub\CS205-project\cmake-build-debug
+CMAKE_BINARY_DIR = D:\Desktop\cs205-project\cmake-build-debug
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -92,14 +92,14 @@ clean: CMakeFiles/cs205_project.dir/clean
 CMakeFiles/cs205_project.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\cs205_project.dir\build.make CMakeFiles/cs205_project.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\cs205_project.dir\build.make CMakeFiles/cs205_project.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=C:\Users\23532\Documents\GitHub\CS205-project\cmake-build-debug\CMakeFiles --progress-num=1,2 "Built target cs205_project"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=D:\Desktop\cs205-project\cmake-build-debug\CMakeFiles --progress-num=1,2 "Built target cs205_project"
 .PHONY : CMakeFiles/cs205_project.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/cs205_project.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\23532\Documents\GitHub\CS205-project\cmake-build-debug\CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Desktop\cs205-project\cmake-build-debug\CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/cs205_project.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start C:\Users\23532\Documents\GitHub\CS205-project\cmake-build-debug\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Desktop\cs205-project\cmake-build-debug\CMakeFiles 0
 .PHONY : CMakeFiles/cs205_project.dir/rule
 
 # Convenience name for target.

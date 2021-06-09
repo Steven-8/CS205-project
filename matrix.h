@@ -10,6 +10,7 @@ class Matrix {
 private:
     vector<vector<T>> matrix;
 public:
+    Matrix();
     Matrix(vector<vector<T>> mat);
 
     int get_rows();
@@ -20,7 +21,23 @@ public:
 
     void transpose();
 
+    friend ostream &operator<<(ostream & os, Matrix<T> mat){
+        for (int i = 0; i < mat.matrix.size(); ++i) {
+            for (int j = 0; j < mat.matrix.front().size(); ++j) {
+                os<<mat.matrix[i][j];
+                os<<" ";
+            }
+            os<<endl;
+        }
+        return os;
+    }
 };
+template <typename T>
+class sparseMatrix:public Matrix<T>{
+    vector<T> sparse_matrix;
+    sparseMatrix()
+};
+
 
 template<typename T>
 T max_val(Matrix<T> mat);

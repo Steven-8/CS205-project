@@ -3,28 +3,44 @@
 #include<complex>
 #include "matrix.h"
 #include <typeinfo>
+#include <string>
+
 using namespace std;
+
 //大小不匹配异常
 class size_mismatch_exception : public exception {
 public:
-    const char *what() {
-        return "matrix size mismatch ";
+    size_mismatch_exception(string str) {
+        cout << str;
     }
 };
 
 //类型不匹配异常
 class type_mismatch_exception : public exception {
 public:
-    const char *what() {
-        return "matrix type mismatch";
+    type_mismatch_exception(string str) {
+        cout << str;
     }
 };
 
-
-
+template<typename T>
+Matrix<T>::Matrix() {
+}
 
 template<typename T>
 Matrix<T>::Matrix(vector<vector<T>> mat) {
+    try {
+        for (int i = 0; i < mat.size(); ++i) {
+            if (i == mat.size() - 1) {
+                break;
+            }
+            if (mat[i].size() != mat[i + 1].size()) {
+                throw size_mismatch_exception("the matrix is invalid");
+            }
+        }
+    } catch (size_mismatch_exception e) {
+        exit(-1);
+    }
     this->matrix = mat;
 }
 
@@ -39,7 +55,7 @@ int Matrix<T>::get_cols() {
 }
 
 template<typename T>
-vector<vector<T>>& Matrix<T>::getMatrix() {
+vector<vector<T>> &Matrix<T>::getMatrix() {
     return matrix;
 }
 
@@ -63,7 +79,11 @@ template<typename T>
 Matrix<T> operator+(Matrix<T> mat1, Matrix<T> mat2) {
     vector<vector<T>> vec;
     if (mat1.get_rows() != mat2.get_rows() || mat1.get_cols() != mat2.get_cols()) {
-        throw size_mismatch_exception();
+        try {
+            throw size_mismatch_exception("two matrix must have the same size");
+        } catch (size_mismatch_exception e) {
+            exit(-1);
+        }
     } else {
         for (int i = 0; i < mat1.get_rows(); ++i) {
             vector<T> temp;
@@ -80,8 +100,14 @@ Matrix<T> operator+(Matrix<T> mat1, Matrix<T> mat2) {
 template<typename T>
 Matrix<T> operator-(Matrix<T> mat1, Matrix<T> mat2) {
     vector<vector<T>> vec;
+
     if (mat1.get_rows() != mat2.get_rows() || mat1.get_cols() != mat2.get_cols()) {
-        throw size_mismatch_exception();
+        try {
+            throw size_mismatch_exception("two matrix must have the same size");
+        }
+        catch (size_mismatch_exception e) {
+            exit(-1);
+        }
     } else {
         for (int i = 0; i < mat1.get_rows(); ++i) {
             vector<T> temp;
@@ -122,37 +148,46 @@ Matrix<T> scalar_div(Matrix<T> mat, T t) {
     return Matrix<T>(vec);
 }
 
-//置换矩阵 ?返回多个矩阵
+
+//共轭矩阵
 template<typename T>
-Matrix<T> transposition(Matrix<T> &mat) {
-
-}
-
-
-//共轭矩阵 ?如何判断是否为复数
-/*
-template<typename T>
-Matrix<T> conjugation(Matrix<T> &mat) {
+Matrix<T> conjugation(Matrix<T> mat) {
     mat.transpose();
     vector<vector<T>> vec;
-    if (typeid(T) == typeid(complex<int>) || typeid(T) == typeid(complex<double>)) {
+    string s1(typeid(T).name());
+    s1 = s1.substr(0, 10);
+    string s2(typeid(complex<double>).name());
+    s2 = s2.substr(0, 10);
+    if (s1 != s2) {
+        try {
+            throw type_mismatch_exception("the element of the matrix must be complex");
+        }
+        catch (type_mismatch_exception e) {
+            exit(-1);
+        }
+    } else {
         for (int i = 0; i < mat.get_rows(); ++i) {
             vector<T> temp;
             for (int j = 0; j < mat.get_cols(); ++j) {
-                mat.getMatrix()[i][j].imag() = -mat.getMatrix()[i][j].imag;
-                temp.push_back();
+                temp.push_back(conj(mat.getMatrix()[i][j]));
             }
+            vec.push_back(temp);
         }
     }
+    return Matrix<T>(vec);
 }
 
-*/
 
 //矩阵元素相乘
 template<typename T>
 Matrix<T> e_w_mul(Matrix<T> mat1, Matrix<T> mat2) {
-    if (mat1.get_rows() != mat2.get_rows() || mat1.get_cols() != mat2.get_cols()) {
-        throw size_mismatch_exception();
+    try {
+        if (mat1.get_rows() != mat2.get_rows() || mat1.get_cols() != mat2.get_cols()) {
+            throw size_mismatch_exception("two matrix's size must be the same");
+        }
+    }
+    catch (size_mismatch_exception e) {
+        exit(-1);
     }
     vector<vector<T>> vec;
     for (int i = 0; i < mat1.get_rows(); ++i) {
@@ -169,8 +204,12 @@ Matrix<T> e_w_mul(Matrix<T> mat1, Matrix<T> mat2) {
 //矩阵相乘
 template<typename T>
 Matrix<T> operator*(Matrix<T> mat1, Matrix<T> mat2) {
-    if (mat1.get_cols() != mat2.get_rows()) {
-        throw size_mismatch_exception();
+    try {
+        if (mat1.get_cols() != mat2.get_rows()) {
+            throw size_mismatch_exception("matrix1's col must be equal to matrix2's row ");
+        }
+    } catch (size_mismatch_exception e) {
+        exit(-1);
     }
     vector<vector<T>> vec;
     for (int i = 0; i < mat1.get_rows(); ++i) {
@@ -191,8 +230,13 @@ Matrix<T> operator*(Matrix<T> mat1, Matrix<T> mat2) {
 //矩阵向量相乘
 template<typename T>
 Matrix<T> operator*(Matrix<T> mat, vector<T> vec) {
-    if (mat.get_cols() != vec.size()) {
-        throw size_mismatch_exception();
+    try {
+        if (mat.get_rows() != vec.size()) {
+            throw size_mismatch_exception("vector's size must be equal to matrix's row");
+        }
+    }
+    catch (size_mismatch_exception e) {
+        exit(-1);
     }
     vector<vector<T>> new_vec;
     for (int i = 0; i < mat.get_rows(); ++i) {
@@ -210,8 +254,13 @@ Matrix<T> operator*(Matrix<T> mat, vector<T> vec) {
 
 template<typename T>
 Matrix<T> operator*(vector<T> vec, Matrix<T> mat) {
-    if (mat.get_rows() != vec.size()) {
-        throw size_mismatch_exception();
+    try {
+        if (mat.get_rows() != vec.size()) {
+            throw size_mismatch_exception("vector's size must be equal to matrix's row");
+        }
+    }
+    catch (size_mismatch_exception e) {
+        exit(-1);
     }
     vector<vector<T>> new_vec;
     vector<T> temp;
@@ -229,9 +278,14 @@ Matrix<T> operator*(vector<T> vec, Matrix<T> mat) {
 //点乘
 template<typename T>
 T dot(vector<T> vec1, vector<T> vec2) {
-    if (vec1.size() != vec2.size()) {
-        throw size_mismatch_exception();
+    try {
+        if (vec1.size() != vec2.size()) {
+            throw size_mismatch_exception("two vector must have the same size");
+        }
+    } catch (size_mismatch_exception e) {
+        exit(-1);
     }
+
     T sum = 0;
     for (int i = 0; i < vec1.size(); ++i) {
         sum += vec1[i] * vec2[i];
@@ -242,8 +296,12 @@ T dot(vector<T> vec1, vector<T> vec2) {
 //叉乘
 template<typename T>
 vector<T> cross(vector<T> vec1, vector<T> vec2) {
-    if (vec1.size() != 3 || vec2.size() != 3) {
-        throw size_mismatch_exception();
+    try {
+        if (vec1.size() != 3 || vec2.size() != 3) {
+            throw size_mismatch_exception("vector's size for cross is not valid");
+        }
+    } catch (size_mismatch_exception e) {
+        exit(-1);
     }
     vector<T> vec;
     vec.push_back(vec1[1] * vec2[2] - vec1[2] * vec2[1]);
@@ -254,12 +312,12 @@ vector<T> cross(vector<T> vec1, vector<T> vec2) {
 
 //part4
 template<typename T>
-T max_val(Matrix<T> mat){
-    T t=mat.getMatrix()[0][0];
-    for(int i=0;i<mat.get_rows();i++){
-        for(int j=0;j<mat.get_cols();j++){
-            if(t<mat.getMatrix()[i][j]){
-                t=mat.getMatrix()[i][j];
+T max_val(Matrix<T> mat) {
+    T t = mat.getMatrix()[0][0];
+    for (int i = 0; i < mat.get_rows(); i++) {
+        for (int j = 0; j < mat.get_cols(); j++) {
+            if (t < mat.getMatrix()[i][j]) {
+                t = mat.getMatrix()[i][j];
             }
         }
 
@@ -268,200 +326,273 @@ T max_val(Matrix<T> mat){
 };
 
 template<typename T>
-T max_row_val(Matrix<T> mat, int row_index){
-    try{
-        if(mat.get_rows()<row_index){
+T max_row_val(Matrix<T> mat, int row_index) {
+    try {
+        if (mat.get_rows() < row_index) {
             throw row_index;
         }
-    }catch(int row_index){
-        cout<<"exception: row_index out of bound: "<<row_index<<endl;
+    } catch (int row_index) {
+        cout << "exception: row_index out of bound: " << row_index << endl;
         exit(-1);
     }
-    T t=mat.getMatrix()[0][0];
+    T t = mat.getMatrix()[0][0];
     for (int i = 0; i < mat.get_cols(); ++i) {
-        if(t<mat.getMatrix()[row_index-1][i]){
-            t=mat.getMatrix()[row_index-1][i];
+        if (t < mat.getMatrix()[row_index - 1][i]) {
+            t = mat.getMatrix()[row_index - 1][i];
         }
     }
-    t=t-mat.getMatrix()[0][0];
+    t = t - mat.getMatrix()[0][0];
     return t;
 
 };
 
 template<typename T>
-T max_col_val(Matrix<T> mat,int col_index){
-    try{
-        if(mat.get_cols()<col_index){
+T max_col_val(Matrix<T> mat, int col_index) {
+    try {
+        if (mat.get_cols() < col_index) {
             throw col_index;
         }
-    }catch(int col_index){
-        cout<<"exception: col_index out of bound: "<<col_index<<endl;
+    } catch (int col_index) {
+        cout << "exception: col_index out of bound: " << col_index << endl;
         exit(-1);
     }
-    T t=mat.getMatrix()[0][0];
+    T t = mat.getMatrix()[0][0];
     for (int i = 0; i < mat.get_rows(); ++i) {
-        if(t<mat.getMatrix()[i][col_index-1]){
-            t=mat.getMatrix()[i][col_index-1];
+        if (t < mat.getMatrix()[i][col_index - 1]) {
+            t = mat.getMatrix()[i][col_index - 1];
         }
     }
-    t=t-mat.getMatrix()[0][0];
+    t = t - mat.getMatrix()[0][0];
     return t;
 
 };;
+
 template<typename T>
-T min_val(Matrix<T> mat){
-    T t=mat.getMatrix()[0][0];
-    for(int i=0;i<mat.get_rows();i++){
-        for(int j=0;j<mat.get_cols();j++){
-            if(t>mat.getMatrix()[i][j]){
-                t=mat.getMatrix()[i][j];
+T min_val(Matrix<T> mat) {
+    T t = mat.getMatrix()[0][0];
+    for (int i = 0; i < mat.get_rows(); i++) {
+        for (int j = 0; j < mat.get_cols(); j++) {
+            if (t > mat.getMatrix()[i][j]) {
+                t = mat.getMatrix()[i][j];
             }
         }
 
     }
     return t;
 };
-template<typename T>
-T min_row_val(Matrix<T> mat,int row_index){
-        try{
-            if(mat.get_rows()<row_index){
-                throw row_index;
-            }
-        }catch(int row_index){
-            cout<<"exception: row_index out of bound: "<<row_index<<endl;
-            exit(-1);
-            exit(-1);
-        }
-
-        T t=mat.getMatrix()[0][0];
-        for (int i = 0; i < mat.get_cols(); ++i) {
-            if(t>mat.getMatrix()[row_index-1][i]){
-                t=mat.getMatrix()[row_index-1][i];
-            }
-        }
-        t=t-mat.getMatrix()[0][0];
-        return t;
-};
 
 template<typename T>
-T min_col_val(Matrix<T> mat,int col_index){
-    try{
-        if(mat.get_cols()<col_index){
-            throw col_index;
-        }
-    }catch(int col_index){
-        cout<<"exception: col_index out of bound: "<<col_index<<endl;
-        exit(-1);
-
-    }
-    T t=mat.getMatrix()[0][0];
-    for (int i = 0; i < mat.get_rows(); ++i) {
-        if(t>mat.getMatrix()[i][col_index-1]){
-            t=mat.getMatrix()[i][col_index-1];
-        }
-    }
-    t=t-mat.getMatrix()[0][0];
-    return t;
-
-};
-template<typename T>
-T sum(Matrix<T> mat){
-    T t=mat.getMatrix()[0][0];
-    for(int i=0;i<mat.get_rows();i++){
-        for(int j=0;j<mat.get_cols();j++){
-            t=t+mat.getMatrix()[i][j];
-        }
-    }
-    t=t-mat.getMatrix()[0][0];
-    return t;
-
-};
-
-template<typename T>
-T sum_row(Matrix<T> mat,int row_index){
-    try{
-        if(mat.get_rows()<row_index){
+T min_row_val(Matrix<T> mat, int row_index) {
+    try {
+        if (mat.get_rows() < row_index) {
             throw row_index;
         }
-    }catch(int row_index){
-        cout<<"exception: row_index out of bound: "<<row_index<<endl;
+    } catch (int row_index) {
+        cout << "exception: row_index out of bound: " << row_index << endl;
+        exit(-1);
         exit(-1);
     }
-    T t=mat.getMatrix()[0][0];
-    for (int i = 0; i < mat.get_cols(); ++i) {
-        t=t+mat.getMatrix()[row_index-1][i];
-    }
-    t=t-mat.getMatrix()[0][0];
-    return t;
 
+    T t = mat.getMatrix()[0][0];
+    for (int i = 0; i < mat.get_cols(); ++i) {
+        if (t > mat.getMatrix()[row_index - 1][i]) {
+            t = mat.getMatrix()[row_index - 1][i];
+        }
+    }
+    t = t - mat.getMatrix()[0][0];
+    return t;
 };
+
 template<typename T>
-T sum_col(Matrix<T> mat,int col_index){
-    try{
-        if(mat.get_cols()<col_index){
+T min_col_val(Matrix<T> mat, int col_index) {
+    try {
+        if (mat.get_cols() < col_index) {
             throw col_index;
         }
-    }catch(int col_index){
-        cout<<"exception: col_index out of bound: "<<col_index<<endl;
+    } catch (int col_index) {
+        cout << "exception: col_index out of bound: " << col_index << endl;
+        exit(-1);
+
+    }
+    T t = mat.getMatrix()[0][0];
+    for (int i = 0; i < mat.get_rows(); ++i) {
+        if (t > mat.getMatrix()[i][col_index - 1]) {
+            t = mat.getMatrix()[i][col_index - 1];
+        }
+    }
+    t = t - mat.getMatrix()[0][0];
+    return t;
+
+};
+
+template<typename T>
+T sum(Matrix<T> mat) {
+    T t = mat.getMatrix()[0][0];
+    for (int i = 0; i < mat.get_rows(); i++) {
+        for (int j = 0; j < mat.get_cols(); j++) {
+            t = t + mat.getMatrix()[i][j];
+        }
+    }
+    t = t - mat.getMatrix()[0][0];
+    return t;
+
+};
+
+template<typename T>
+T sum_row(Matrix<T> mat, int row_index) {
+    try {
+        if (mat.get_rows() < row_index) {
+            throw row_index;
+        }
+    } catch (int row_index) {
+        cout << "exception: row_index out of bound: " << row_index << endl;
         exit(-1);
     }
-    T t=mat.getMatrix()[0][0];
-    for(int i=0;i<mat.get_rows();i++){
-        t=t+mat.getMatrix()[i][col_index-1];
+    T t = mat.getMatrix()[0][0];
+    for (int i = 0; i < mat.get_cols(); ++i) {
+        t = t + mat.getMatrix()[row_index - 1][i];
     }
-    t=t-mat.getMatrix()[0][0];
+    t = t - mat.getMatrix()[0][0];
+    return t;
+
+};
+
+template<typename T>
+T sum_col(Matrix<T> mat, int col_index) {
+    try {
+        if (mat.get_cols() < col_index) {
+            throw col_index;
+        }
+    } catch (int col_index) {
+        cout << "exception: col_index out of bound: " << col_index << endl;
+        exit(-1);
+    }
+    T t = mat.getMatrix()[0][0];
+    for (int i = 0; i < mat.get_rows(); i++) {
+        t = t + mat.getMatrix()[i][col_index - 1];
+    }
+    t = t - mat.getMatrix()[0][0];
     return t;
 };
+
 template<typename T>
-T avg(Matrix<T> mat){
-    return sum(mat)/(mat.get_rows()*mat.get_cols());
+T avg(Matrix<T> mat) {
+    return sum(mat) / (mat.get_rows() * mat.get_cols());
 };
 
 template<typename T>
-T avg_row(Matrix<T> mat,int row_index){
-    return sum_row(mat,row_index)/mat.get_cols();
+T avg_row(Matrix<T> mat, int row_index) {
+    return sum_row(mat, row_index) / mat.get_cols();
 };
+
 template<typename T>
-T avg_col(Matrix<T> mat,int col_index){
-    return sum_col(mat,col_index)/mat.get_rows();
+T avg_col(Matrix<T> mat, int col_index) {
+    return sum_col(mat, col_index) / mat.get_rows();
 };
 
 
-int main(){
-    vector<int > r1;
-    vector<int > r2;
-    vector<int > r3;
+//卷积
+template<typename T>
+Matrix<T> convolution(Matrix<T> kernel, Matrix<T> mat) {
+    try {
+        if (kernel.get_cols() != kernel.get_rows() || kernel.get_rows() % 2 == 0) {
+            throw size_mismatch_exception("kernel's size is invalid");
+        }
+    }
+    catch (size_mismatch_exception e) {
+        exit(-1);
+    }
+    int n = kernel.get_rows() / 2;
+    vector<vector<T>> new_mat;
+    for (int i = 0; i < 2 * n + mat.get_rows(); ++i) {
+        vector<T> temp;
+        for (int j = 0; j < 2 * n + mat.get_cols(); ++j) {
+            if (i >= n && i < n + mat.get_rows()) {
+                if (j < n || j >= n + mat.get_cols()) {
+                    temp.push_back(0);
+                } else {
+                    temp.push_back(mat.getMatrix()[i - n][j - n]);
+                }
+            } else {
+                temp.push_back(0);
+            }
+        }
+        new_mat.push_back(temp);
+    }
+    cout << Matrix<T>(new_mat);
+    vector<vector<T>> vec;
+    for (int i = 0; i < mat.get_rows(); ++i) {
+        vector<T> temp;
+        for (int j = 0; j < mat.get_cols(); ++j) {
+            int sum = 0;
+            for (int k = 0; k < kernel.get_rows(); ++k) {
+                for (int l = 0; l < kernel.get_cols(); ++l) {
+                    sum += kernel.getMatrix()[k][l] * new_mat[k + i][j + l];
+                }
+            }
+            temp.push_back(sum);
+        }
+        vec.push_back(temp);
+    }
+    return vec;
+}
+
+int main() {
+    vector<int> r1;
+    vector<int> r2;
+    vector<int> r3;
+    vector<int> r4;
+    vector<int> r5;
     r1.push_back(1);
     r1.push_back(2);
+    r1.push_back(3);
+    r1.push_back(3);
     r1.push_back(3);
     r2.push_back(4);
     r2.push_back(5);
     r2.push_back(6);
+    r2.push_back(6);
+    r2.push_back(6);
     r3.push_back(7);
     r3.push_back(8);
     r3.push_back(9);
+    r3.push_back(9);
+    r3.push_back(9);
+    r4.push_back(1);
+    r4.push_back(2);
+    r4.push_back(3);
+    r4.push_back(3);
+    r4.push_back(3);
+    r5.push_back(4);
+    r5.push_back(5);
+    r5.push_back(6);
+    r5.push_back(6);
+    r5.push_back(6);
     vector<vector<int>> mat;
     mat.push_back(r1);
     mat.push_back(r2);
     mat.push_back(r3);
-
+    mat.push_back(r4);
+    mat.push_back(r5);
     Matrix<int> m1(mat);
-    Matrix<int> m2=m1+m1+m1;
-    m2= scalar_mul(m2,3);
-    for(int i=0; i<m2.get_rows();i++){
-        for (int j = 0; j < m2.get_cols(); ++j) {
-            cout<<m2.getMatrix()[i][j]<<"  ";
-        }
-        cout<<endl;
+    Matrix<int> m2(m1);
+    //  cout << m1 << endl;
+//    m1.transpose();
+//    cout<<m1<<endl;
+//    cout<<m1+m2<<endl;
+//    cout<<m1-m2<<endl;
+//    cout<<m1*m2<<endl;
+//    cout<<e_w_mul(m1,m2)<<endl;
+//    cout<<m1*r1<<endl;
+//    cout<<r1*m1<<endl;
+//    cout<<scalar_mul(m1,2)<<endl;
+//    cout<<scalar_div(m1,2)<<endl;
+//    cout<<dot(r1,r2)<<endl;
 
-    }
-    cout<<min_row_val(m2,2)<<endl;
-    cout<<sum_col(m2,2)<<endl;
-    cout<<avg_col(m2,2)<<endl;
-    cout<<avg(m2)<<endl;
-
-
-
-
-
+//    Matrix<int> m2 = m1 + m1 + m1;
+//    m2 = scalar_mul(m2, 3);
+    // r1.push_back(1);
+    // vector<int> c = cross(r1, r2);
+    cout << m2 << endl;
+    cout << convolution(m1, m2);
 }
