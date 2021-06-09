@@ -4,7 +4,7 @@
 #include "matrix.h"
 #include <typeinfo>
 #include <string>
-
+#include <cmath>
 using namespace std;
 
 //大小不匹配异常
@@ -27,6 +27,18 @@ template<typename T>
 Matrix<T>::Matrix() {
 }
 
+template<typename T>
+Matrix<T>::Matrix(T** mat,int rows,int cols) {
+    vector<vector<T>> vec;
+    for(int i=0;i<rows;i++){
+        vector<T> t;
+        for(int j=0;j<cols;j++){
+            t.push_back(mat[i][j]);
+        }
+        vec.push_back(t);
+    }
+    this->matrix=vec;
+}
 template<typename T>
 Matrix<T>::Matrix(vector<vector<T>> mat) {
     try {
@@ -73,6 +85,17 @@ void Matrix<T>::transpose() {
     matrix = vec;
     return;
 };
+template<typename T>
+Matrix<T> Matrix<T>::getTranspose(){
+    Matrix<T> mat(this->getMatrix());
+    mat.transpose();
+    return mat;
+};
+template<typename T>
+Matrix<T>inverse(){
+
+};
+
 
 //稀疏矩阵构造函数
 template<typename T>
@@ -565,6 +588,166 @@ Matrix<T> convolution(Matrix<T> kernel, Matrix<T> mat) {
     return vec;
 }
 
+
+//5
+template<typename T>
+double arrayMultiplyAndAdd(T* first,T* second, int len){
+    double result=0.0;
+    for(int i=0;i<len;i++){
+        result+=(double)(first[i]*second[i]);
+    }
+    return result;
+};
+template<typename  T>
+Matrix<double>GramSchimidt(Matrix<T> paraArray){
+    Matrix<T> tempTransposeMatrix=paraArray.getTranspose();
+    int m=tempTransposeMatrix.get_rows();
+    int n=tempTransposeMatrix.get_cols();
+
+    double** tempmatrix=new double*[m];
+    for(int i=0;i<m;i++){
+        tempmatrix[i]=new double[n];
+    }
+
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+            tempmatrix[i][j]=tempTransposeMatrix.getMatrix()[i][j];
+        }
+    }
+
+    double** resultMatrix=new double*[m];
+    for(int i=0;i<m;i++){
+        resultMatrix[i]=new double[n];
+    };
+    double tempVal=0,tempFactor=0;
+    for (int i = 0; i < m; ++i) {
+        for(int j=0;j<n;j++){
+            tempVal=tempmatrix[i][j];
+            for (int k = 0; k < i; ++k) {
+                tempFactor=(1.0* arrayMultiplyAndAdd(tempmatrix[i],resultMatrix[k],n))/ arrayMultiplyAndAdd(resultMatrix[k],resultMatrix[k],n);
+                tempVal-=tempFactor*resultMatrix[k][j];
+            }
+            resultMatrix[i][j]=tempVal;
+        }
+
+    }
+    Matrix<double> mat(resultMatrix,m,n);
+    return mat.getTranspose();
+
+};
+
+template<typename  T>
+Matrix<double> QRdecomposition(Matrix<T> paraMatrix){
+    Matrix<double> tempOrthogonalMatrix = GramSchimidt(paraMatrix).getTranspose();
+    int m=tempOrthogonalMatrix.get_rows();
+    int n=tempOrthogonalMatrix.get_cols();
+
+    double** tempmatrix=new double*[m];
+    for(int i=0;i<m;i++){
+        tempmatrix[i]=new double[n];
+    }
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+            tempmatrix[i][j]=tempOrthogonalMatrix.getMatrix()[i][j];
+        }
+    }
+
+    vector<vector<double>> vec;
+    for(int i=0;i<m;i++){
+        double tempMag = sqrt(arrayMultiplyAndAdd(tempmatrix[i],tempmatrix[i],n));
+        vector<double> v;
+        for(int j=0;j<n;j++){
+            v.push_back(tempmatrix[i][j] / tempMag);
+        }
+        vec.push_back(v);
+    }
+    Matrix<double> tempMatrixQ(vec);
+    int tempM=paraMatrix.get_rows();
+    int tempN=paraMatrix.get_cols();
+    double** temppara=new double*[tempM];
+    for(int i=0;i<m;i++){
+        temppara[i]=new double[tempN];
+    }
+    for(int i=0;i<tempM;i++){
+        for(int j=0;j<tempN;j++){
+            temppara[i][j]=paraMatrix.getMatrix()[i][j];
+        }
+    }
+    Matrix<double> tempParaMatrix(temppara,tempM,tempN);
+    Matrix<double> tempMatrixR = tempMatrixQ * tempParaMatrix;
+
+
+    //
+    //cout<<tempMatrixR<<endl;
+    //delete[] temppara;
+    //tempParaMatrix.~Matrix();
+    //
+    double** resultSummary=new double*[m+n];
+    for(int i=0;i<m+n;i++){
+        resultSummary[i]=new double[m];
+    }
+    for(int i=0;i<n;i++){
+        for(int j=0;j<m;j++){
+            resultSummary[i][j]=tempMatrixQ.getMatrix()[j][i];
+        }
+    }
+    for(int i=n;i<n+m;i++){
+        for(int j=0;j<m;j++){
+            resultSummary[i][j]=tempMatrixR.getMatrix()[i-n][j];
+        }
+    }
+    Matrix<double> result(resultSummary,n+m,m);
+    return result;
+};
+
+int* arrayIndexAuto(int start, int end){
+    int* pointer=new int[end-start];
+    for (int i = 0; i < end-start; i++) {
+        pointer[i] = i + start;
+    }
+    return pointer;
+};
+Matrix<double> arrayRowValue(Matrix<double> tempSummary,int* paraIndexQ,int size){
+    vector<vector<double>> vec;
+    for(int i=0;i<size;i++){
+        vector<double> t=tempSummary.getMatrix()[paraIndexQ[i]];
+        vec.push_back(t);
+    }
+    return Matrix<double>(vec);
+};
+template<typename T>
+Matrix<double> Eigenvalue(Matrix<T> paraMatrix, int paraIter){
+    int m=paraMatrix.get_rows();
+    int n=paraMatrix.get_cols();
+    int* tempIndexQ= arrayIndexAuto(0,m);
+    int* tempIndexR = arrayIndexAuto(m,n+m);
+    Matrix<double> result;
+    for(int i=0;i<paraIter;i++){
+        Matrix<double> tempSummary= QRdecomposition(paraMatrix);
+        Matrix<double> tempMatrixQ= arrayRowValue(tempSummary,tempIndexQ,m);
+        Matrix<double> tempMatrixR= arrayRowValue(tempSummary,tempIndexR,n);
+        result=tempMatrixR*tempMatrixQ;
+    }
+
+    return result;
+};
+template<typename T>
+Matrix<double> Eigenvector(Matrix<T> paraMatrix, int paraIter){
+    int m=paraMatrix.get_rows();
+    int n=paraMatrix.get_cols();
+    Matrix<double> tempMatrix= Eigenvalue(paraMatrix,paraIter);
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+            if(i!=j){
+                tempMatrix.getMatrix()[i][j]=0;
+            }
+        }
+    }
+    cout<<tempMatrix;
+    tempMatrix.getMatrix()[0][0]=0;
+    cout<<tempMatrix;
+    return (paraMatrix-tempMatrix).inverse();
+};
 int main() {
     vector<int> r1;
     vector<int> r2;
@@ -574,19 +757,18 @@ int main() {
     r1.push_back(1);
     r1.push_back(2);
     r1.push_back(3);
-    r1.push_back(3);
-    r1.push_back(3);
+//    r1.push_back(3);
+//    r1.push_back(3);
     r2.push_back(4);
     r2.push_back(5);
     r2.push_back(6);
-    r2.push_back(6);
-    r2.push_back(6);
+//    r2.push_back(6);
     r3.push_back(7);
     r3.push_back(8);
     r3.push_back(9);
-    r3.push_back(9);
-    r3.push_back(9);
-    r4.push_back(1);
+//    r3.push_back(9);
+ //   r3.push_back(9);
+    /*r4.push_back(1);
     r4.push_back(2);
     r4.push_back(3);
     r4.push_back(3);
@@ -595,19 +777,23 @@ int main() {
     r5.push_back(5);
     r5.push_back(6);
     r5.push_back(6);
-    r5.push_back(6);
+    r5.push_back(6);*/
     vector<vector<int>> mat;
     mat.push_back(r1);
     mat.push_back(r2);
     mat.push_back(r3);
-    mat.push_back(r4);
-    mat.push_back(r5);
+//    mat.push_back(r4);
+//    mat.push_back(r5);
     Matrix<int> m1(mat);
     Matrix<int> m2(m1);
-    sparseMatrix<int> m3(mat);
+    Matrix<double> m4=Eigenvalue(m2,10);
+    cout<<m4;
+    Eigenvector(m2,1);
+
+/*    sparseMatrix<int> m3(mat);
     cout<<m3;
     m3.transpose();
-    cout<<m3;
+    cout<<m3;*/
     //  cout << m1 << endl;
 //    m1.transpose();
 //    cout<<m1<<endl;
@@ -625,6 +811,6 @@ int main() {
 //    m2 = scalar_mul(m2, 3);
     // r1.push_back(1);
     // vector<int> c = cross(r1, r2);
- //   cout << m2 << endl;
-   // cout << convolution(m1, m2);
+    //   cout << m2 << endl;
+    // cout << convolution(m1, m2);
 }

@@ -14,19 +14,22 @@ protected:
 public:
     Matrix();
 
+    Matrix(T** mat,int rows,int cols);
     Matrix(vector<vector<T>> mat);
 
+    ~Matrix(){};
     int get_rows();
 
     int get_cols();
 
     vector<vector<T>> &getMatrix();
-
+    Matrix<T>getTranspose();
+    Matrix<T>inverse();
     virtual void transpose();
 
     friend ostream &operator<<(ostream &os, Matrix<T> mat) {
-        for (int i = 0; i < mat.matrix.size(); ++i) {
-            for (int j = 0; j < mat.matrix.front().size(); ++j) {
+        for (int i = 0; i < mat.get_rows(); ++i) {
+            for (int j = 0; j < mat.get_cols(); ++j) {
                 os << mat.matrix[i][j];
                 os << " ";
             }
@@ -130,5 +133,19 @@ T avg_col(Matrix<T> mat, int col_index);
 //卷积
 template<typename T>
 Matrix<T> convolution(Matrix<T> kernel, Matrix<T> mat);
+
+//5
+template<typename T>
+double arrayMultiplyAndAdd(T* first,T* second, int len);
+template<typename  T>
+Matrix<double>GramSchimidt(Matrix<T> paraArray);
+template<typename  T>
+Matrix<double> QRdecomposition(Matrix<T> paraMatrix);
+template<typename T>
+Matrix<double> Eigenvalue(Matrix<T> paraMatrix, int paraIter);
+Matrix<double> arrayRowValue(Matrix<double> tempSummary,int* paraIndexQ,int size);
+int* arrayIndexAuto(int start, int end);
+template<typename T>
+Matrix<double> Eigenvector(Matrix<double> paraMatrix, int paraIter);
 
 #endif //CS205_PROJECT_MATRIX_H
