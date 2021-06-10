@@ -24,7 +24,12 @@ public:
 
     vector<vector<T>> &getMatrix();
     Matrix<T>getTranspose();
-    Matrix<T>inverse();
+    Matrix<double>getInverse();
+    double determinant();
+    void reshape(int x1,int y1,int x2,int y2);
+    void row_slicing(int row_index);
+    void col_slicing(int col_index);
+
     virtual void transpose();
 
     friend ostream &operator<<(ostream &os, Matrix<T> mat) {
@@ -147,5 +152,6 @@ Matrix<double> arrayRowValue(Matrix<double> tempSummary,int* paraIndexQ,int size
 int* arrayIndexAuto(int start, int end);
 template<typename T>
 Matrix<double> Eigenvector(Matrix<double> paraMatrix, int paraIter);
-
+template<typename T>
+T trace(Matrix<T> mat);
 #endif //CS205_PROJECT_MATRIX_H

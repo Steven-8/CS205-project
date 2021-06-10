@@ -92,8 +92,170 @@ Matrix<T> Matrix<T>::getTranspose(){
     return mat;
 };
 template<typename T>
-Matrix<T>inverse(){
+Matrix<double> Matrix<T>::getInverse(){
+    try{
+        if(determinant()==0){
+            throw type_mismatch_exception("Fetal error, the matrix can not be invertible.");
+        }
+    }catch(type_mismatch_exception){
+        exit(0);
+    }
+    T paraMatrix[get_rows()][get_cols()];
+    for(int i=0;i<get_rows();i++){
+        for(int j=0;j<get_cols();j++){
+            paraMatrix[i][j]=getMatrix()[i][j];
+        }
+    }
+    int m=get_rows();
+    int n=get_cols()*2;
+    double tempCopyMatrix[m][n];
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+            if(j<m){
+                tempCopyMatrix[i][j]=paraMatrix[i][j];
+            }else{
+                if(j==i+m){
+                    tempCopyMatrix[i][j]=1;
+                }
+            }
+        }
+    }
 
+    double tempTimes=0;
+    for(int i=0;i<m;i++) {
+        if (tempCopyMatrix[i][i] == 0) {
+            int j;
+            for (j = i + 1; j < m; j++) {
+                if (tempCopyMatrix[j][i] != 0) {
+                    break;
+                }
+
+                if (j != i + 1) {
+                    for (int k = 0; k < n; k++) {
+                        double tempValue = tempCopyMatrix[i][k];
+                        tempCopyMatrix[i][k] = tempCopyMatrix[j][k];
+                        tempCopyMatrix[j][k] = tempValue;
+                    }
+                }
+            }
+        }
+        for (int j = i + 1; j < m; j++) {
+            if (tempCopyMatrix[j][i] != 0) {
+                tempTimes = (tempCopyMatrix[j][i]) / tempCopyMatrix[i][i];
+                for (int k = i; k < n; k++) {
+                    tempCopyMatrix[j][k] /= tempTimes;
+                    tempCopyMatrix[j][k] -= tempCopyMatrix[i][k];
+                } // Of for k
+            } // Of if
+        }
+    }
+    for (int i = 0; i < m; i++) {
+        for (int j = i + 1; j < n / 2.; j++) {
+            if (tempCopyMatrix[i][j] != 0) {
+                tempTimes = tempCopyMatrix[i][j] / tempCopyMatrix[j][j];
+                for (int k = j; k < n; k++) {
+                    tempCopyMatrix[i][k] -= tempTimes * tempCopyMatrix[j][k];
+                } // Of for k
+            } // Of if
+        } // Of for j
+    } // Of for i
+
+    for (int i = 0; i < m; i++) {
+        tempTimes = tempCopyMatrix[i][i];
+        for (int j = 0; j <n; j++) {
+            tempCopyMatrix[i][j] /= tempTimes;
+        } // Of for j
+    } // Of for i
+
+    double **resultMatrix=new double* [m];
+    for(int i=0;i<m;i++){
+        resultMatrix[i]=new double[n/2];
+    }
+
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j <n / 2; j++) {
+            resultMatrix[i][j] = tempCopyMatrix[i][j + n / 2];
+        } // Of for j
+    } // Of for i
+    Matrix<double> ans(resultMatrix,m,n/2);
+    cout<<ans;
+
+};
+template<typename T>
+double Matrix<T>::determinant() {
+    try {
+        if (this->get_cols() != this->get_rows()) {
+            throw size_mismatch_exception("matrix's col must be equal to its row ");
+        }
+    } catch (size_mismatch_exception e) {
+        exit(-1);
+    }
+    if(this->get_cols()==2&&this->get_cols()==2){
+        return (double)this->getMatrix()[0][0]*(double)this->getMatrix()[1][1]-(double)this->getMatrix()[0][1]*(double)this->getMatrix()[1][0];
+    }
+    T ans=getMatrix()[0][0];
+    ans-=getMatrix()[0][0];
+    for(int i=0;i<this->get_cols();i++){
+
+        Matrix<T> sub(this->matrix);
+        sub.row_slicing(0);
+        sub.col_slicing(i);
+        if(i%2==0){
+            ans+=this->getMatrix()[0][i]*sub.determinant();
+        }else{
+            ans=ans-((double)this->getMatrix()[0][i]*sub.determinant());
+        }
+        //cout<<i<<": "<<sub.determinant()<<":"<<ans<<endl;
+    }
+}
+
+template<typename T>
+void Matrix<T>::reshape(int x1, int y1, int x2, int y2) {
+    try {
+        int col=this->get_cols();
+        int row=this->get_rows();
+        if ( x1>=row||x2>=row||y1>=col||y2>=col) {
+            throw size_mismatch_exception("index out of bound");
+        }
+    } catch (size_mismatch_exception e) {
+        exit(-1);
+    }
+    vector<vector<T>> vec;
+    int xstart=min(x1,x2),xend=max(x1,x2),ystart=min(y1,y2),yend=max(y1,y2);
+    for(int i=xstart;i<=xend;i++){
+        vector<T> v;
+        for(int j=ystart;j<=yend;j++){
+            v.push_back(this->getMatrix()[i][j]);
+        }
+        vec.push_back(v);
+    }
+    this->matrix=vec;
+}
+
+template<typename T>
+void Matrix<T>::row_slicing(int row_index) {
+    try {
+        if (row_index>=this->get_rows()) {
+            throw size_mismatch_exception("row_index out of bound");
+        }
+    } catch (size_mismatch_exception e) {
+        exit(-1);
+    }
+    this->getMatrix().erase(this->getMatrix().begin()+row_index);
+}
+
+template<typename T>
+void Matrix<T>::col_slicing(int col_index) {
+    try {
+        if (col_index>=this->get_cols()) {
+            throw size_mismatch_exception("col_index out of bound");
+        }
+    } catch (size_mismatch_exception e) {
+        exit(-1);
+    }
+    for(int i=0;i<this->get_rows();i++){
+        this->getMatrix()[i].erase(this->getMatrix()[i].begin()+col_index);
+    }
 };
 
 
@@ -743,11 +905,36 @@ Matrix<double> Eigenvector(Matrix<T> paraMatrix, int paraIter){
             }
         }
     }
+    vector<vector<double>> vec;
+    for(int i=0;i<paraMatrix.get_rows();i++){
+        vector<double> v;
+        for(int j=0;j<paraMatrix.get_cols();j++){
+            v.push_back((double)paraMatrix.getMatrix()[i][j]);
+        }
+        vec.push_back(v);
+    }
+    Matrix<double> tempParaMatrix(vec);
     cout<<tempMatrix;
-    tempMatrix.getMatrix()[0][0]=0;
-    cout<<tempMatrix;
-    return (paraMatrix-tempMatrix).inverse();
+    //cout<<tempParaMatrix;
+    return (tempParaMatrix-tempMatrix).getInverse();
 };
+template<typename T>
+T trace(Matrix<T> mat){
+    try{
+        if(mat.get_cols()!=mat.get_rows()){
+            throw size_mismatch_exception("this matrix is not a square matrix");
+        }
+    }catch (size_mismatch_exception){
+        exit(-1);
+    }
+    T ans=mat.getMatrix()[0][0];
+    ans-=mat.getMatrix()[0][0];
+    for(int i=0;i<mat.get_rows();i++){
+        ans+=mat.getMatrix()[i][i];
+    }
+    return ans;
+};
+
 int main() {
     vector<int> r1;
     vector<int> r2;
@@ -756,7 +943,7 @@ int main() {
     vector<int> r5;
     r1.push_back(1);
     r1.push_back(2);
-    r1.push_back(3);
+    r1.push_back(5);
 //    r1.push_back(3);
 //    r1.push_back(3);
     r2.push_back(4);
@@ -786,9 +973,14 @@ int main() {
 //    mat.push_back(r5);
     Matrix<int> m1(mat);
     Matrix<int> m2(m1);
-    Matrix<double> m4=Eigenvalue(m2,10);
-    cout<<m4;
-    Eigenvector(m2,1);
+
+    cout<<trace(m1);
+    m1.row_slicing(1);
+    cout<<trace(m1);
+    Matrix<double> m4;
+    //cout<<m2;
+    cout<<Eigenvector(m2,1);
+    //cout<<m2;
 
 /*    sparseMatrix<int> m3(mat);
     cout<<m3;
